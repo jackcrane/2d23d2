@@ -24,9 +24,10 @@ export const App = () => {
 
   const [heightFunctionCode, setHeightFunctionCode] = useState(
     `(row, col, x, z, averageColor, colors) => {
+  if(!averageColor) return -1;
   // Example: return height based on the sum of absolute x and z.
-  console.log(averageColor)
-  return Math.abs(x) + Math.abs(z);
+  console.log(averageColor);
+  return averageColor.r / 255;
 }`
   );
 

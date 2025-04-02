@@ -9,77 +9,7 @@ import {
   Grid,
 } from "@react-three/drei";
 import { NGon } from "./shapes/ngon";
-
-// Helper: sample pixel colors under the polygon.
-const getPolygonColors = (posX, posZ, radius, imageData, config) => {
-  if (!imageData) return { averageColor: null, colors: [] };
-
-  const { width: imgWidth, height: imgHeight, data } = imageData;
-
-  // Convert world coordinates (relative to image plane) to pixel coordinates.
-  const worldToPixel = (x, z) => {
-    const u = (x + config.imageWidth / 2) / config.imageWidth;
-    const v = (config.imageHeight / 2 - z) / config.imageHeight;
-    const px = Math.floor(u * imgWidth);
-    const py = Math.floor(v * imgHeight);
-    return { px, py };
-  };
-
-  // Define bounding box in world coordinates.
-  const minX = posX - radius;
-  const maxX = posX + radius;
-  const minZ = posZ - radius;
-  const maxZ = posZ + radius;
-  const topLeft = worldToPixel(minX, maxZ);
-  const bottomRight = worldToPixel(maxX, minZ);
-
-  const startX = Math.max(0, topLeft.px);
-  const endX = Math.min(imgWidth - 1, bottomRight.px);
-  const startY = Math.max(0, topLeft.py);
-  const endY = Math.min(imgHeight - 1, bottomRight.py);
-
-  let totalR = 0,
-    totalG = 0,
-    totalB = 0,
-    count = 0;
-  let colors = [];
-
-  const samplingStep = 4; // sample every 4 pixels for better performance
-
-  for (let py = startY; py <= endY; py += samplingStep) {
-    for (let px = startX; px <= endX; px += samplingStep) {
-      // Convert pixel coordinates back to world coordinates.
-      const x = (px / imgWidth) * config.imageWidth - config.imageWidth / 2;
-      const z = config.imageHeight / 2 - (py / imgHeight) * config.imageHeight;
-      // Check if the pixel is within the circular polygon area.
-      if ((x - posX) ** 2 + (z - posZ) ** 2 <= radius ** 2) {
-        const index = (py * imgWidth + px) * 4;
-        const r = data[index];
-        const g = data[index + 1];
-        const b = data[index + 2];
-        totalR += r;
-        totalG += g;
-        totalB += b;
-        count++;
-        const hex = `#${((1 << 24) + (r << 16) + (g << 8) + b)
-          .toString(16)
-          .slice(1)}`;
-        colors.push(hex);
-      }
-    }
-  }
-
-  if (count === 0) return { averageColor: null, colors: [] };
-
-  const avgR = Math.round(totalR / count);
-  const avgG = Math.round(totalG / count);
-  const avgB = Math.round(totalB / count);
-  const averageColor = `#${((1 << 24) + (avgR << 16) + (avgG << 8) + avgB)
-    .toString(16)
-    .slice(1)}`;
-
-  return { averageColor, colors };
-};
+import { getPolygonColors } from "../util/getPolygonColors";
 
 export const ImagePlane = ({ config }) => {
   if (!config.image) return null;
