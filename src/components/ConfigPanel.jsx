@@ -7,19 +7,25 @@ export const ConfigPanel = ({
   downloadOBJ,
   heightFunctionCode,
   setHeightFunctionCode,
+  colorFunctionCode,
+  setColorFunctionCode,
 }) => {
   const [showModal, setShowModal] = useState(false);
-  // Local state to hold the unsaved code from the editor.
+  // Local state to hold the unsaved height function code.
   const [editorCode, setEditorCode] = useState("");
 
+  const [showColorModal, setShowColorModal] = useState(false);
+  // Local state to hold the unsaved color function code.
+  const [editorColorCode, setEditorColorCode] = useState("");
+
   const openModal = () => {
-    // Initialize the local code state with the saved code.
+    // Initialize the local code state with the saved height function code.
     setEditorCode(heightFunctionCode);
     setShowModal(true);
   };
 
   const handleSave = () => {
-    // Update the saved code only when Save is clicked.
+    // Update the saved height function code only when Save is clicked.
     setHeightFunctionCode(editorCode);
     setShowModal(false);
   };
@@ -27,6 +33,20 @@ export const ConfigPanel = ({
   const handleCancel = () => {
     // Simply close the modal without saving changes.
     setShowModal(false);
+  };
+
+  const openColorModal = () => {
+    setEditorColorCode(colorFunctionCode);
+    setShowColorModal(true);
+  };
+
+  const handleColorSave = () => {
+    setColorFunctionCode(editorColorCode);
+    setShowColorModal(false);
+  };
+
+  const handleColorCancel = () => {
+    setShowColorModal(false);
   };
 
   const handleChange = (key, value) =>
@@ -45,6 +65,7 @@ export const ConfigPanel = ({
         setConfig((prev) => ({
           ...prev,
           image: url,
+          imageFile: file,
           imageWidth: defaultWidth,
           imageHeight: defaultHeight,
           imageAspect: aspect,
@@ -187,12 +208,12 @@ export const ConfigPanel = ({
           </div>
         </>
       )}
-      <button onClick={downloadOBJ}>Download OBJ</button>
       <button onClick={openModal}>Describe height function</button>
+      <button onClick={openColorModal}>Describe color function</button>
+      <button onClick={downloadOBJ}>Download OBJ</button>
       {showModal && (
         <div className="modal-overlay">
           <div className="modal-content">
-            {/* Optionally, you may keep a Close button for quick exit */}
             <button onClick={handleCancel}>Close</button>
             <CodeEditor value={editorCode} onChange={setEditorCode} />
             <div style={{ marginTop: "10px" }}>
@@ -204,6 +225,25 @@ export const ConfigPanel = ({
           </div>
         </div>
       )}
+      {showColorModal && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <button onClick={handleColorCancel}>Close</button>
+            <CodeEditor value={editorColorCode} onChange={setEditorColorCode} />
+            <div style={{ marginTop: "10px" }}>
+              <button onClick={handleColorSave}>Save</button>
+              <button
+                onClick={handleColorCancel}
+                style={{ marginLeft: "10px" }}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
+
+export default ConfigPanel;

@@ -27,6 +27,7 @@ export const Viewport = ({
   sceneRef,
   exportableRef,
   getHeight,
+  getColor,
   imageData,
 }) => {
   const HEX_WIDTH = config.radius * 2 + config.padding;
@@ -91,13 +92,25 @@ export const Viewport = ({
               avgColor,
               colorsArray
             );
+
+            const colorValue = getColor(
+              row,
+              col,
+              posX,
+              posZ,
+              avgColor,
+              colorsArray
+            );
+
             return (
               <NGon
                 key={`${row}-${col}`}
                 position={[posX, 0, posZ]}
                 radius={config.radius}
                 depth={heightValue}
-                materialProps={{ color: config.color }}
+                materialProps={{
+                  color: `rgb(${colorValue.r}, ${colorValue.g}, ${colorValue.b})`,
+                }}
                 rotation={[-Math.PI / 2, 0, 0]}
               />
             );

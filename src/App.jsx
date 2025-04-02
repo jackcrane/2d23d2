@@ -3,6 +3,7 @@ import { OBJExporter } from "three/examples/jsm/exporters/OBJExporter";
 import image from "../assets/slucam-logo-color.png";
 import { ConfigPanel } from "./components/ConfigPanel";
 import { Viewport } from "./components/Viewport";
+import JSZip from "jszip";
 
 export const cm = (m) => m * 10;
 
@@ -31,6 +32,14 @@ export const App = () => {
 }`
   );
 
+  const [colorFunctionCode, setColorFunctionCode] = useState(
+    `(row, col, x, z, averageColor, colors) => {
+  if(!averageColor) return { r: 0, g: 0, b: 0 };
+  // Example: return color based on averageColor values.
+  return { r: averageColor.r, g: averageColor.g, b: averageColor.b };
+}`
+  );
+
   const getHeightFunction = useMemo(() => {
     try {
       return eval(`(${heightFunctionCode})`);
@@ -39,6 +48,15 @@ export const App = () => {
       return (row, col, x, z, averageColor, colors) => 0;
     }
   }, [heightFunctionCode]);
+
+  const getColorFunction = useMemo(() => {
+    try {
+      return eval(`(${colorFunctionCode})`);
+    } catch (e) {
+      console.error("Error compiling color function:", e);
+      return (row, col, x, z, averageColor, colors) => ({ r: 0, g: 0, b: 0 });
+    }
+  }, [colorFunctionCode]);
 
   // Load the image into an off-screen canvas using scaled dimensions.
   const [imageData, setImageData] = useState(null);
@@ -85,6 +103,61 @@ export const App = () => {
     URL.revokeObjectURL(url);
   };
 
+  const downloadZip = async () => {
+    const zip = new JSZip();
+    const { imageFile, ...configData } = config;
+    const dataToSave = {
+      config: configData,
+      heightFunctionCode,
+      colorFunctionCode,
+    };
+    zip.file("settings.json", JSON.stringify(dataToSave, null, 2));
+    if (imageFile) {
+      zip.file(imageFile.name, imageFile);
+    }
+    const content = await zip.generateAsync({ type: "blob" });
+    const url = URL.createObjectURL(content);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "settings.zip";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+  const loadZip = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const zip = await JSZip.loadAsync(file);
+    const settingsFile = zip.file("settings.json");
+    if (!settingsFile) return;
+    const settingsText = await settingsFile.async("string");
+    const loadedData = JSON.parse(settingsText);
+    const newConfig = loadedData.config;
+    // Check for an image file (assumes one image file is present with a common image extension)
+    let imageFileEntry;
+    zip.forEach((relativePath, zipEntry) => {
+      if (
+        relativePath !== "settings.json" &&
+        /\.(png|jpe?g|gif)$/i.test(relativePath)
+      ) {
+        imageFileEntry = zipEntry;
+      }
+    });
+    if (imageFileEntry) {
+      const blob = await imageFileEntry.async("blob");
+      const imageUrl = URL.createObjectURL(blob);
+      newConfig.image = imageUrl;
+      newConfig.imageFile = new File([blob], imageFileEntry.name, {
+        type: blob.type,
+      });
+    }
+    setConfig(newConfig);
+    setHeightFunctionCode(loadedData.heightFunctionCode);
+    setColorFunctionCode(loadedData.colorFunctionCode);
+  };
+
   return (
     <div style={{ display: "flex", height: "100vh" }}>
       <div style={{ flex: 1, position: "relative" }}>
@@ -93,6 +166,7 @@ export const App = () => {
           sceneRef={sceneRef}
           exportableRef={exportableRef}
           getHeight={getHeightFunction}
+          getColor={getColorFunction}
           imageData={imageData}
         />
         <img
@@ -122,7 +196,25 @@ export const App = () => {
           downloadOBJ={downloadOBJ}
           heightFunctionCode={heightFunctionCode}
           setHeightFunctionCode={setHeightFunctionCode}
+          colorFunctionCode={colorFunctionCode}
+          setColorFunctionCode={setColorFunctionCode}
         />
+        <div style={{ marginTop: "20px" }}>
+          <button onClick={downloadZip}>Download Settings Zip</button>
+          <button
+            style={{ marginLeft: "10px" }}
+            onClick={() => document.getElementById("zipInput").click()}
+          >
+            Load Settings Zip
+          </button>
+          <input
+            id="zipInput"
+            type="file"
+            accept=".zip"
+            style={{ display: "none" }}
+            onChange={loadZip}
+          />
+        </div>
       </div>
     </div>
   );

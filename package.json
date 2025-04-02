@@ -12,6 +12,7 @@
     "@react-three/drei": "^10.0.5",
     "@react-three/fiber": "^9.1.1",
     "ace-builds": "^1.39.1",
+    "jszip": "^3.10.1",
     "react": "^19.0.0",
     "react-ace": "^14.0.1",
     "react-dom": "^19.0.0",
