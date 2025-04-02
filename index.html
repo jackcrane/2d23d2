@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>React Vite Micro App</title>
+    <style>
+      body {
+        height: 100vh;
+        padding: 0;
+        margin: 0;
+        font-family: "PTRootUI";
+      }
+      * {
+        /* font-family: "PTRootUI"; */
+      }
+      #root {
+        height: 100%;
+      }
+      input {
+        /* font-family: "PTRootUI"; */
+        font-size: 1em;
+        padding: 0.25em;
+        border: 1px solid #ccc;
+        outline: none;
+      }
+      input:focus {
+        border: 1px solid #007bff;
+      }
+      /* Modal styles moved from ConfigPanel */
+      .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+      }
+      .modal-content {
+        background-color: white;
+        padding: 20px;
+        border-radius: 4px;
+        max-width: 80%;
+        max-height: 80%;
+        width: 500px;
+        overflow: auto;
+      }
+    </style>
+    <link rel="stylesheet" href="/assets/PT-Root-UI/PT-Root-UI_VF.css" />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="./src/index.jsx"></script>
+  </body>
+</html>

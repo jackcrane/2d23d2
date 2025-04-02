@@ -1,0 +1,23 @@
+{
+  "name": "2d23d2",
+  "version": "0.1.0",
+  "description": "",
+  "license": "MIT",
+  "scripts": {
+    "start": "vite",
+    "preview": "vite preview",
+    "build": "vite build"
+  },
+  "dependencies": {
+    "@react-three/drei": "^10.0.5",
+    "@react-three/fiber": "^9.1.1",
+    "ace-builds": "^1.39.1",
+    "react": "^19.0.0",
+    "react-ace": "^14.0.1",
+    "react-dom": "^19.0.0",
+    "three": "0.174.0"
+  },
+  "devDependencies": {
+    "vite": "^6.2.0"
+  }
+}

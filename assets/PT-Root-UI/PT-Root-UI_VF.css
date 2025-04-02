@@ -1,0 +1,49 @@
+/* Variable Font */
+@font-face {
+  font-family: "PTRootUI";
+  src: url("pt-root-ui_vf.woff2") format("woff2"),
+    url("pt-root-ui_vf.woff") format("woff");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Light (300) */
+@font-face {
+  font-family: "PTRootUI";
+  src: url("pt-root-ui_light.woff2") format("woff2"),
+    url("pt-root-ui_light.woff") format("woff");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Regular (400) */
+@font-face {
+  font-family: "PTRootUI";
+  src: url("pt-root-ui_regular.woff2") format("woff2"),
+    url("pt-root-ui_regular.woff") format("woff");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Medium (500) */
+@font-face {
+  font-family: "PTRootUI";
+  src: url("pt-root-ui_medium.woff2") format("woff2"),
+    url("pt-root-ui_medium.woff") format("woff");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Bold (700) */
+@font-face {
+  font-family: "PTRootUI";
+  src: url("pt-root-ui_bold.woff2") format("woff2"),
+    url("pt-root-ui_bold.woff") format("woff");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
