@@ -28,7 +28,9 @@ export const getPolygonColors = (posX, posZ, radius, imageData, config) => {
     totalB = 0,
     count = 0;
   const colors = [];
-  const samplingStep = 4;
+  const regionWidth = endX - startX;
+  const regionHeight = endY - startY;
+  const samplingStep = regionWidth < 4 || regionHeight < 4 ? 1 : 4;
 
   for (let py = startY; py <= endY; py += samplingStep) {
     for (let px = startX; px <= endX; px += samplingStep) {
@@ -49,7 +51,29 @@ export const getPolygonColors = (posX, posZ, radius, imageData, config) => {
     }
   }
 
-  if (count === 0) return { averageColor: null, colors: [] };
+  if (count === 0) {
+    // Fallback: sample the center pixel
+    const centerPixel = worldToPixel(posX, posZ);
+    const centerX = centerPixel.px;
+    const centerY = centerPixel.py;
+    if (
+      centerX >= 0 &&
+      centerX < imgWidth &&
+      centerY >= 0 &&
+      centerY < imgHeight
+    ) {
+      const index = (centerY * imgWidth + centerX) * 4;
+      const r = data[index];
+      const g = data[index + 1];
+      const b = data[index + 2];
+      const { h, s, l } = rgbToHsl(r, g, b);
+      return {
+        averageColor: { r, g, b, h, s, l },
+        colors: [{ r, g, b, h, s, l }],
+      };
+    }
+    return { averageColor: null, colors: [] };
+  }
 
   const avgR = Math.round(totalR / count);
   const avgG = Math.round(totalG / count);
