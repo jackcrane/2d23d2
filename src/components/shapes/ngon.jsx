@@ -34,7 +34,7 @@ export const NGon = ({
     <mesh position={position} rotation={rotation} {...meshProps}>
       <extrudeGeometry args={[shape, extrudeSettings]} />
       <meshStandardMaterial
-        color="#ffff00"
+        color="#ff00ff"
         side={THREE.DoubleSide}
         {...materialProps}
       />

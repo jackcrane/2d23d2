@@ -29,6 +29,7 @@ export const Viewport = ({
   getHeight,
   getColor,
   imageData,
+  loading,
 }) => {
   const HEX_WIDTH = config.radius * 2 + config.padding;
   const HEX_HEIGHT = Math.sqrt(3) * config.radius + config.padding;
@@ -61,6 +62,11 @@ export const Viewport = ({
       <ambientLight intensity={1} />
       <directionalLight position={[50, 50, 50]} />
       <ImagePlane config={config} />
+      {loading && (
+        <Html center>
+          <div style={{ color: "black", fontSize: "24px" }}>Loading...</div>
+        </Html>
+      )}
       <group ref={exportableRef}>
         {Array.from({ length: config.rows }).map((_, row) =>
           Array.from({ length: config.cols }).map((_, col) => {

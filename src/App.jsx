@@ -15,8 +15,7 @@ export const App = () => {
     padding: cm(0.2), // 0.2 cm becomes 2 mm.
     color: "#00ff00",
     startX: 0,
-    startZ: 0,
-    // imageWidth and imageHeight will be set on image load.
+    startZ: 0, // imageWidth and imageHeight will be set on image load.
   };
 
   const [config, setConfig] = useState(initialConfig);
@@ -34,9 +33,9 @@ export const App = () => {
 
   const [colorFunctionCode, setColorFunctionCode] = useState(
     `(row, col, x, z, averageColor, colors) => {
-  if(!averageColor) return { r: 0, g: 0, b: 0 };
+  if(!averageColor) return { r: 255, g: 0, b: 255, a: 1 };
   // Example: return color based on averageColor values.
-  return { r: averageColor.r, g: averageColor.g, b: averageColor.b };
+  return { r: averageColor.r, g: averageColor.g, b: averageColor.b, a: averageColor.a / 255 };
 }`
   );
 
@@ -54,7 +53,12 @@ export const App = () => {
       return eval(`(${colorFunctionCode})`);
     } catch (e) {
       console.error("Error compiling color function:", e);
-      return (row, col, x, z, averageColor, colors) => ({ r: 0, g: 0, b: 0 });
+      return (row, col, x, z, averageColor, colors) => ({
+        r: 0,
+        g: 0,
+        b: 0,
+        a: 1,
+      });
     }
   }, [colorFunctionCode]);
 

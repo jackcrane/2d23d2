@@ -3,9 +3,10 @@ export const getPolygonColors = (posX, posZ, radius, imageData, config) => {
 
   const { width: imgWidth, height: imgHeight, data } = imageData;
 
+  // Update worldToPixel to mirror the x axis:
   const worldToPixel = (x, z) => {
     const u = (x + config.imageWidth / 2) / config.imageWidth;
-    const v = (config.imageHeight / 2 - z) / config.imageHeight;
+    const v = 1 - (config.imageHeight / 2 - z) / config.imageHeight;
     const px = Math.floor(u * imgWidth);
     const py = Math.floor(v * imgHeight);
     return { px, py };
@@ -26,6 +27,7 @@ export const getPolygonColors = (posX, posZ, radius, imageData, config) => {
   let totalR = 0,
     totalG = 0,
     totalB = 0,
+    totalA = 0,
     count = 0;
   const colors = [];
   const regionWidth = endX - startX;
@@ -34,19 +36,22 @@ export const getPolygonColors = (posX, posZ, radius, imageData, config) => {
 
   for (let py = startY; py <= endY; py += samplingStep) {
     for (let px = startX; px <= endX; px += samplingStep) {
-      const x = (px / imgWidth) * config.imageWidth - config.imageWidth / 2;
+      const x = config.imageWidth / 2 - (px / imgWidth) * config.imageWidth;
       const z = config.imageHeight / 2 - (py / imgHeight) * config.imageHeight;
       if ((x - posX) ** 2 + (z - posZ) ** 2 <= radius ** 2) {
         const index = (py * imgWidth + px) * 4;
         const r = data[index];
         const g = data[index + 1];
         const b = data[index + 2];
+        const a = data[index + 3] / 255; // Normalize alpha channel to [0, 1]
+        // Conversion to HSL remains unchanged
         const { h, s, l } = rgbToHsl(r, g, b);
         totalR += r;
         totalG += g;
         totalB += b;
+        totalA += a; // Include normalized alpha in total
         count++;
-        colors.push({ r, g, b, h, s, l });
+        colors.push({ r, g, b, a, h, s, l }); // Include normalized alpha in colors
       }
     }
   }
@@ -66,10 +71,11 @@ export const getPolygonColors = (posX, posZ, radius, imageData, config) => {
       const r = data[index];
       const g = data[index + 1];
       const b = data[index + 2];
+      const a = data[index + 3] / 255; // Normalize alpha channel to [0, 1]
       const { h, s, l } = rgbToHsl(r, g, b);
       return {
-        averageColor: { r, g, b, h, s, l },
-        colors: [{ r, g, b, h, s, l }],
+        averageColor: { r, g, b, a, h, s, l }, // Include normalized alpha in averageColor
+        colors: [{ r, g, b, a, h, s, l }], // Include normalized alpha in colors
       };
     }
     return { averageColor: null, colors: [] };
@@ -78,8 +84,9 @@ export const getPolygonColors = (posX, posZ, radius, imageData, config) => {
   const avgR = Math.round(totalR / count);
   const avgG = Math.round(totalG / count);
   const avgB = Math.round(totalB / count);
+  const avgA = totalA / count; // Calculate average normalized alpha
   const { h, s, l } = rgbToHsl(avgR, avgG, avgB);
-  const averageColor = { r: avgR, g: avgG, b: avgB, h, s, l };
+  const averageColor = { r: avgR, g: avgG, b: avgB, a: avgA, h, s, l }; // Include average normalized alpha
 
   return { averageColor, colors };
 };
