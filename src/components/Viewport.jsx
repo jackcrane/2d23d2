@@ -90,23 +90,34 @@ export const Viewport = ({
               colorsArray = result.colors;
             }
 
-            const heightValue = getHeight(
-              row,
-              col,
-              posX,
-              posZ,
-              avgColor,
-              colorsArray
-            );
+            let heightValue = 1;
+            let colorValue = { r: 255, g: 0, b: 255, a: 1 };
 
-            const colorValue = getColor(
-              row,
-              col,
-              posX,
-              posZ,
-              avgColor,
-              colorsArray
-            );
+            try {
+              heightValue = getHeight(
+                row,
+                col,
+                posX,
+                posZ,
+                avgColor,
+                colorsArray
+              );
+            } catch (err) {
+              console.error("Error in getHeight:", err);
+            }
+
+            try {
+              colorValue = getColor(
+                row,
+                col,
+                posX,
+                posZ,
+                avgColor,
+                colorsArray
+              );
+            } catch (err) {
+              console.error("Error in getColor:", err);
+            }
 
             return (
               <NGon
@@ -116,6 +127,8 @@ export const Viewport = ({
                 depth={heightValue}
                 materialProps={{
                   color: `rgb(${colorValue.r}, ${colorValue.g}, ${colorValue.b})`,
+                  opacity: colorValue.a,
+                  transparent: colorValue.a < 1,
                 }}
                 rotation={[-Math.PI / 2, 0, 0]}
               />

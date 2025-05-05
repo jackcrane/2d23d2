@@ -35,7 +35,12 @@ export const App = () => {
     `(row, col, x, z, averageColor, colors) => {
   if(!averageColor) return { r: 255, g: 0, b: 255, a: 1 };
   // Example: return color based on averageColor values.
-  return { r: averageColor.r, g: averageColor.g, b: averageColor.b, a: averageColor.a / 255 };
+  return {
+    r: averageColor.r,
+    g: averageColor.g,
+    b: averageColor.b,
+    a: averageColor.a
+  };
 }`
   );
 
@@ -95,16 +100,45 @@ export const App = () => {
   const downloadOBJ = () => {
     if (!exportableRef.current) return;
     const exporter = new OBJExporter();
-    const objString = exporter.parse(exportableRef.current);
-    const blob = new Blob([objString], { type: "text/plain" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = "scene.obj";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+    let mtlString = "# Material Count\n";
+
+    // Traverse the exportable scene and update each mesh's material name.
+    exportableRef.current.traverse((child) => {
+      if (child.isMesh && child.material) {
+        const materialName = `Material_${child.name || child.uuid}`;
+        child.material.name = materialName; // Ensure the material's name is set.
+        mtlString += `newmtl ${materialName}\n`;
+        mtlString += `Kd ${child.material.color.r} ${child.material.color.g} ${child.material.color.b}\n\n`;
+      }
+    });
+
+    // Export the OBJ content.
+    const objContent = exporter.parse(exportableRef.current);
+    // Prepend the mtllib directive at the top of the OBJ file.
+    const finalObjString = `mtllib materials.mtl\n` + objContent;
+    const blob = new Blob([finalObjString], { type: "text/plain" });
+    const mtlBlob = new Blob([mtlString], { type: "text/plain" });
+    const objUrl = URL.createObjectURL(blob);
+    const mtlUrl = URL.createObjectURL(mtlBlob);
+
+    // Download the OBJ file.
+    const linkObj = document.createElement("a");
+    linkObj.href = objUrl;
+    linkObj.download = "scene.obj";
+    document.body.appendChild(linkObj);
+    linkObj.click();
+    document.body.removeChild(linkObj);
+
+    // Download the MTL file.
+    const linkMtl = document.createElement("a");
+    linkMtl.href = mtlUrl;
+    linkMtl.download = "materials.mtl";
+    document.body.appendChild(linkMtl);
+    linkMtl.click();
+    document.body.removeChild(linkMtl);
+
+    URL.revokeObjectURL(objUrl);
+    URL.revokeObjectURL(mtlUrl);
   };
 
   const downloadZip = async () => {
